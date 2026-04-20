@@ -1,0 +1,25 @@
+<Solution>
+  <Folder Name="/src/" />
+  <Folder Name="/src/Aspire/">
+    <Project Path="ToDo.Aspire/ToDo.ServiceDefaults/ToDo.ServiceDefaults.csproj" />
+  </Folder>
+  <Folder Name="/src/Aspire/ToDo.Aspire/">
+    <Project Path="ToDo.Aspire/ToDo.AppHost/ToDo.AppHost.csproj" />
+  </Folder>
+  <Folder Name="/src/Core/">
+    <Project Path="ToDo/src/ToDo.Application/ToDo..Application.csproj" />
+    <Project Path="ToDo/src/ToDo.Domain/ToDo.Domain.csproj" />
+  </Folder>
+  <Folder Name="/src/Infrastructure/">
+    <Project Path="ToDo/src/ToDo.Infrastructure/ToDo.Infrastructure.csproj" />
+    <Project Path="ToDo/src/ToDo.Persistence/ToDo.Persistence.csproj" />
+  </Folder>
+  <Folder Name="/src/Presentation/">
+    <Project Path="ToDo/src/ToDo.API/ToDo.API.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="ToDo/tests/ToDo.E2ETest/ToDo.E2ETest.csproj" />
+    <Project Path="ToDo/tests/ToDo.IntegrationsTest/ToDo.IntegrationsTest.csproj" />
+    <Project Path="ToDo/tests/ToDo.UnitTest/ToDo.UnitTest.csproj" />
+  </Folder>
+</Solution>

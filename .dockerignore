@@ -1,0 +1,67 @@
+﻿# Build results
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# Visual Studio cache/options
+.vs/
+.vscode/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Rider
+.idea/
+*.sln.iml
+
+# Build Results
+**/bin/
+**/obj/
+**/out/
+
+# NuGet
+*.nupkg
+*.snupkg
+**/packages/*
+
+# Test Results
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+
+# Files
+*.log
+*.cache
+*.bak
+*.tmp
+*.temp
+*.swp
+*~
+
+# OS Files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Docker files
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Documentation
+*.md
+README*
+
+# HTTP test files
+*.http
+
+# Node modules (if any)
+node_modules/
+npm-debug.log
+
