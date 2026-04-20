@@ -5,27 +5,23 @@ A master thesis project implementing an AI-assisted factory API built with .NET 
 ## Solution Structure
 
 ```
-ToDo/
-├── ToDo.Hosting/
-│   └── ToDo.AppHost/             # .NET Aspire orchestration host
-├── ToDo.Factory/
+ToDo-Blueprint/
+├── ToDo.Aspire/
+│   ├── ToDo.AppHost/             # .NET Aspire orchestration host
+│   └── ToDo.ServiceDefaults/     # Aspire service defaults (telemetry, health checks)
+├── ToDo/
 │   ├── src/
-│   │   ├── ToDo.API/         # ASP.NET Core Web API
-│   │   ├── ToDo.Application/ # Application layer (use cases, handlers)
-│   │   ├── ToDo.Domain/      # Domain models
+│   │   ├── ToDo.API/             # ASP.NET Core Web API
+│   │   ├── ToDo.Application/     # Application layer (use cases, handlers)
+│   │   ├── ToDo.Domain/          # Domain models
 │   │   ├── ToDo.Infrastructure/  # External service integrations
-│   │   └── ToDo.Persistence/ # EF Core, migrations, repositories
+│   │   └── ToDo.Persistence/     # EF Core, migrations, repositories
 │   └── tests/
-│       └── ToDo.IntegrationsTest/ # Integration tests (xUnit + Testcontainers)
-└── ToDo.Shared/
-    └── src/
-        ├── ToDo.ServiceDefaults/     # Aspire service defaults (telemetry, health checks)
-        ├── ToDo.Shared/              # Shared utilities
-        ├── ToDo.Shared.API/          # Shared API infrastructure (base controller, middleware)
-        ├── ToDo.Shared.Application/  # Shared application abstractions (IRequestHandler, ICrudRepository)
-        ├── ToDo.Shared.Domain/       # Shared domain base types (BaseModel)
-        ├── ToDo.Shared.Infrastructure/ # Shared infrastructure helpers
-        └── ToDo.Shared.Persistence/  # Shared EF Core base context and repositories
+│       ├── ToDo.E2ETest/         # End-to-end tests
+│       ├── ToDo.IntegrationsTest/ # Integration tests (xUnit + Testcontainers)
+│       └── ToDo.UnitTest/        # Unit tests
+├── ToDo.Shared/                  # Placeholder for future shared libraries
+└── ToDo.Docker/                  # Docker Compose setup
 ```
 
 ## Architecture
@@ -38,14 +34,14 @@ The solution uses **Clean Architecture** layered as follows:
 - **Infrastructure** — External integrations (AI services, third-party APIs)
 - **Persistence** — Entity Framework Core with SQL Server, generic `CrudRepository<T>`, audit timestamps via `BaseAppDatabaseContext`
 
-Shared cross-cutting concerns (exception handling, base controller, service discovery, OpenTelemetry) live in the `ToDo.Shared.*` projects and are consumed by each service.
+Cross-cutting concerns (exception handling, base controller, service discovery, OpenTelemetry) live in `ToDo.ServiceDefaults` and are consumed by each service.
 
 ## Technology Stack
 
 | Concern | Technology |
 |---|---|
 | Framework | .NET 10 / ASP.NET Core |
-| Orchestration | .NET Aspire 13 |
+| Orchestration | .NET Aspire 9 |
 | Database | SQL Server (via Docker) |
 | ORM | Entity Framework Core |
 | Validation | FluentValidation |
@@ -66,14 +62,14 @@ Shared cross-cutting concerns (exception handling, base controller, service disc
 Start the Aspire AppHost to launch all services and the SQL Server container:
 
 ```bash
-dotnet run --project ToDo.Hosting/ToDo.AppHost
+dotnet run --project ToDo.Aspire/ToDo.AppHost
 ```
 
 The Aspire dashboard will be available at `http://localhost:15888` (or as printed in the console). The Factory API Swagger UI is accessible at the `/swagger` endpoint of the service.
 
 ### Configuration
 
-The AppHost reads SQL Server parameters from `ToDo.Hosting/ToDo.AppHost/appsettings.json`:
+The AppHost reads SQL Server parameters from `ToDo.Aspire/ToDo.AppHost/appsettings.json`:
 
 ```json
 {
@@ -88,16 +84,27 @@ The AppHost reads SQL Server parameters from `ToDo.Hosting/ToDo.AppHost/appsetti
 
 > **Note:** Do not commit real passwords. Use user secrets in development:
 > ```bash
-> dotnet user-secrets set "Parameters:sql-password" "<your-password>" --project ToDo.Hosting/ToDo.AppHost
+> dotnet user-secrets set "Parameters:sql-password" "<your-password>" --project ToDo.Aspire/ToDo.AppHost
 > ```
 
 ### Run Tests
 
-Integration tests spin up a real SQL Server instance via Testcontainers. Docker must be running.
-
 ```bash
-dotnet test ToDo.Factory/tests/ToDo.IntegrationsTest
+# Unit tests
+dotnet test ToDo/tests/ToDo.UnitTest
+
+# Integration tests (requires Docker)
+dotnet test ToDo/tests/ToDo.IntegrationsTest
+
+# End-to-end tests (requires Docker)
+dotnet test ToDo/tests/ToDo.E2ETest
 ```
+
+Integration and E2E tests spin up a real SQL Server instance via Testcontainers. Docker must be running.
+
+### Docker Compose (alternative)
+
+See [`ToDo.Docker/docker-compose-README.md`](ToDo.Docker/docker-compose-README.md) for running the stack via Docker Compose without Aspire.
 
 ## Key Design Patterns
 
