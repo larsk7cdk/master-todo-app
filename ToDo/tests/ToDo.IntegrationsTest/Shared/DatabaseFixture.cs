@@ -14,7 +14,6 @@ public class DatabaseFixture
 
     public string ConnectionString => _sqlContainer.GetConnectionString();
 
-
     public async ValueTask StartAsync()
     {
         await _sqlContainer.StartAsync();
@@ -34,6 +33,5 @@ public class DatabaseFixture
 
         await using var db = new AppDatabaseContext(options);
         await db.Database.MigrateAsync();
-        await db.Database.EnsureCreatedAsync();
     }
 }

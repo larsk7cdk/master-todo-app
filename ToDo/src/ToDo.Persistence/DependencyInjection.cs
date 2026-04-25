@@ -1,7 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using ToDo.Application.Interfaces;
+using ToDo.Application.Models;
 using ToDo.Persistence.DatabaseContext;
+using ToDo.Persistence.Repositories;
 
 
 namespace ToDo.Persistence;
@@ -19,6 +22,8 @@ public static class DependencyInjection
                 configuration.GetConnectionString(configuration["Parameters:sql-db-name"] ?? "appdb");
             options.UseSqlServer(connectionString);
         });
+
+        services.AddScoped<ICrudRepository<ToDoModel>, ToDoRepository<ToDoModel>>();
 
         return services;
     }

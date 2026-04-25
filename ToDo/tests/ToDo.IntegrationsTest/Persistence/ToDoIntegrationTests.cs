@@ -1,15 +1,17 @@
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
+using ToDo.Application.Models;
 using ToDo.IntegrationsTest.Shared;
 using ToDo.Persistence.DatabaseContext;
-using ToDo.Persistence.Entities;
+using ToDo.Persistence.Repositories;
+using ToDo.Shared.Application.Exceptions;
 
 namespace ToDo.IntegrationsTest.Persistence;
 
 public class ToDoIntegrationTests : IAsyncLifetime
 {
-    private AppDatabaseContext _sut = null!;
     private DatabaseFixture _fixture = null!;
+    private ToDoRepository<ToDoModel> _sut = null!;
 
     public async ValueTask InitializeAsync()
     {
@@ -20,7 +22,7 @@ public class ToDoIntegrationTests : IAsyncLifetime
             .UseSqlServer(_fixture.ConnectionString)
             .Options;
 
-        _sut = new AppDatabaseContext(options);
+        _sut = new ToDoRepository<ToDoModel>(new AppDatabaseContext(options));
     }
 
     public async ValueTask DisposeAsync()
@@ -33,99 +35,79 @@ public class ToDoIntegrationTests : IAsyncLifetime
     public async Task CreateToDo_ShouldPersist_ReturnToDo()
     {
         // Arrange
-        var todo = new ToDoEntity
+        var model = new ToDoModel
         {
             Name = "Test 1",
             Description = "Test description 1",
             Status = "New"
         };
-        _sut.ToDos.Add(todo);
 
         // Act
-        await _sut.SaveChangesAsync(TestContext.Current.CancellationToken);
+        var actual = await _sut.CreateAsync(model, TestContext.Current.CancellationToken);
 
         // Assert
-        var result = _sut.ToDos.FirstOrDefault(s => s.Name == todo.Name);
-        result.Should().NotBeNull();
-        result.Id.Should().BeGreaterThanOrEqualTo(1);
-        result.Name.Should().Be(todo.Name);
-        result.Description.Should().Be(todo.Description);
-        result.Status.Should().Be(todo.Status);
+        actual.Should().BeGreaterThanOrEqualTo(1);
     }
 
     [Fact]
     public async Task UpdateToDo_ShouldPersist_ReturnUpdatedToDo()
     {
         // Arrange
-        var todo = new ToDoEntity
+        var todo = new ToDoModel
         {
             Name = "Test 1",
             Description = "Test description 1",
             Status = "New"
         };
-        _sut.ToDos.Add(todo);
 
         // Act
-        await _sut.SaveChangesAsync(TestContext.Current.CancellationToken);
+        var actual = await _sut.CreateAsync(todo, TestContext.Current.CancellationToken);
 
         // Assert
-        var result = _sut.ToDos.FirstOrDefault(s => s.Name == todo.Name);
-        result.Should().NotBeNull();
-        result.Id.Should().BeGreaterThanOrEqualTo(1);
-        result.Name.Should().Be(todo.Name);
-        result.Description.Should().Be(todo.Description);
-        result.Status.Should().Be(todo.Status);
-
+        actual.Should().BeGreaterThanOrEqualTo(1);
 
         // Arrange
-        var todoUpdate = new ToDoEntity
+        var todoUpdate = new ToDoModel
         {
+            Id = actual,
             Name = "Test 2",
             Description = "Test description 2",
             Status = "Ongoing"
         };
-        _sut.ToDos.Add(todoUpdate);
 
         // Act
-        await _sut.SaveChangesAsync(TestContext.Current.CancellationToken);
+        var actualUpdate = await _sut.UpdateAsync(todoUpdate, TestContext.Current.CancellationToken);
 
         // Assert
-        var resultUpdated = _sut.ToDos.FirstOrDefault(s => s.Name == todoUpdate.Name);
-        resultUpdated.Should().NotBeNull();
-        resultUpdated.Id.Should().BeGreaterThanOrEqualTo(result.Id);
-        resultUpdated.Name.Should().Be(todoUpdate.Name);
-        resultUpdated.Description.Should().Be(todoUpdate.Description);
-        resultUpdated.Status.Should().Be(todoUpdate.Status);
+        actualUpdate.Should().Be(actual);
     }
 
     [Fact]
     public async Task DeleteToDo_ShouldPersist_ReturnNoToDo()
     {
         // Arrange
-        var todo = new ToDoEntity
+        var todo = new ToDoModel
         {
             Name = "Test 1",
             Description = "Test description 1",
             Status = "New"
         };
-        _sut.ToDos.Add(todo);
 
         // Act
-        await _sut.SaveChangesAsync(TestContext.Current.CancellationToken);
+        var actual = await _sut.CreateAsync(todo, TestContext.Current.CancellationToken);
 
         // Assert
-        var result = _sut.ToDos.FirstOrDefault(s => s.Name == todo.Name);
-        result.Should().NotBeNull();
+        actual.Should().BeGreaterThanOrEqualTo(1);
 
         // Arrange
-        _sut.ToDos.Remove(todo);
+        var id = actual;
 
         // Act
-        await _sut.SaveChangesAsync(TestContext.Current.CancellationToken);
+        await _sut.DeleteAsync(id, TestContext.Current.CancellationToken);
+        var actualEx = async () => await _sut.GetByIdAsync(id, TestContext.Current.CancellationToken);
 
         // Assert
-        var resultDeleted = _sut.ToDos.FirstOrDefault(s => s.Name == todo.Name);
-        resultDeleted.Should().BeNull();
+        await actualEx.Should().ThrowAsync<NotFoundException>();
     }
 
     [Fact]
@@ -134,21 +116,58 @@ public class ToDoIntegrationTests : IAsyncLifetime
         // Arrange
         for (int i = 0; i < 10; i++)
         {
-            var todo = new ToDoEntity
+            var todo = new ToDoModel
             {
                 Name = $"Test {i}",
                 Description = $"Test description {i}",
                 Status = "New"
             };
-            _sut.ToDos.Add(todo);
+            await _sut.CreateAsync(todo, TestContext.Current.CancellationToken);
         }
 
         // Act
-        await _sut.SaveChangesAsync(TestContext.Current.CancellationToken);
+        var actual = await _sut.GetAllAsync(TestContext.Current.CancellationToken);
 
         // Assert
-        var result = _sut.ToDos;
-        result.Should().NotBeNull();
-        result.Count().Should().Be(10);
+        actual.Should().HaveCount(10);
+        actual[0].Id.Should().BeGreaterThanOrEqualTo(1);
+        actual[0].Name.Should().Be("Test 0");
+        actual[0].Description.Should().Be("Test description 0");
+        actual[0].Status.Should().Be("New");
+        actual[0].DateCreated.Should().BeAfter(DateTime.UtcNow.AddSeconds(-30));
+        actual[0].DateModified.Should().BeAfter(DateTime.UtcNow.AddSeconds(-30));
+    }
+
+    [Fact]
+    public async Task GetToDo_ShouldFetch_ReturnToDo()
+    {
+        // Arrange
+        var todo = new ToDoModel
+        {
+            Name = "Test 1",
+            Description = "Test description 1",
+            Status = "New"
+        };
+
+        // Act
+        var actual = await _sut.CreateAsync(todo, TestContext.Current.CancellationToken);
+
+        // Assert
+        actual.Should().BeGreaterThanOrEqualTo(1);
+
+        // Arrange
+        var id = actual;
+
+        // Act
+        var actualToDo = await _sut.GetByIdAsync(id, TestContext.Current.CancellationToken);
+
+        // Assert
+        actualToDo.Should().NotBeNull();
+        actualToDo.Id.Should().Be(actual);
+        actualToDo.Name.Should().Be(todo.Name);
+        actualToDo.Description.Should().Be(todo.Description);
+        actualToDo.Status.Should().Be(todo.Status);
+        actualToDo.DateCreated.Should().BeAfter(DateTime.UtcNow.AddSeconds(-30));
+        actualToDo.DateModified.Should().BeAfter(DateTime.UtcNow.AddSeconds(-30));
     }
 }

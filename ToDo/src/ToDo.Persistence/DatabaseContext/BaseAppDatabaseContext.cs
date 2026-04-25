@@ -22,11 +22,11 @@ public abstract class BaseAppDatabaseContext<TContext>(DbContextOptions<TContext
         foreach (var entry in base.ChangeTracker.Entries<BaseEntity>()
                      .Where(x => x.State == EntityState.Added || x.State == EntityState.Modified))
         {
-            entry.Entity.DateModified = DateTime.Now;
+            entry.Entity.DateModified = DateTime.UtcNow;
 
             if (entry.State == EntityState.Added)
             {
-                entry.Entity.DateCreated = DateTime.Now;
+                entry.Entity.DateCreated = DateTime.UtcNow;
             }
         }
 
