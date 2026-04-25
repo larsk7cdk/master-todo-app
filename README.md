@@ -1,6 +1,7 @@
 # ToDo
 
-A ToDo blueprint project built with .NET 10 and .NET Aspire. The solution follows Clean Architecture principles with a shared kernel pattern, providing a foundation for modular and testable microservice-style development.
+A ToDo blueprint project built with .NET 10 and .NET Aspire. The solution follows Clean Architecture principles with a shared kernel pattern,
+providing a foundation for modular and testable microservice-style development.
 
 ## Solution Structure
 
@@ -32,22 +33,24 @@ The solution uses **Clean Architecture** layered as follows:
 - **Application** — Shared exceptions (`BadRequestException`, `NotFoundException`) and FluentValidation registration
 - **Domain** — Pure domain models with no external dependencies (empty blueprint layer)
 - **Infrastructure** — External integrations (empty blueprint layer, ready for AI services, third-party APIs, etc.)
-- **Persistence** — Entity Framework Core with SQL Server, `BaseAppDatabaseContext<TContext>` with assembly-based configuration scanning, audit timestamp support
+- **Persistence** — Entity Framework Core with SQL Server, `BaseAppDatabaseContext<TContext>` with assembly-based configuration scanning, audit
+  timestamp support
 
-Cross-cutting concerns (exception handling, base controller, service discovery, OpenTelemetry) live in `ToDo.ServiceDefaults` and are consumed by each service.
+Cross-cutting concerns (exception handling, base controller, service discovery, OpenTelemetry) live in `ToDo.ServiceDefaults` and are consumed by each
+service.
 
 ## Technology Stack
 
-| Concern | Technology |
-|---|---|
-| Framework | .NET 10 / ASP.NET Core |
-| Orchestration | .NET Aspire 13.1.2 |
-| Database | SQL Server (via Docker) |
-| ORM | Entity Framework Core 10 |
-| Validation | FluentValidation 12 |
-| Observability | OpenTelemetry (traces, metrics, logs) |
-| API Documentation | Swagger / OpenAPI (Swashbuckle 10) |
-| Testing | xUnit v3, Testcontainers (MsSql), FluentAssertions |
+| Concern           | Technology                                         |
+|-------------------|----------------------------------------------------|
+| Framework         | .NET 10 / ASP.NET Core                             |
+| Orchestration     | .NET Aspire 13.1.2                                 |
+| Database          | SQL Server (via Docker)                            |
+| ORM               | Entity Framework Core 10                           |
+| Validation        | FluentValidation 12                                |
+| Observability     | OpenTelemetry (traces, metrics, logs)              |
+| API Documentation | Swagger / OpenAPI (Swashbuckle 10)                 |
+| Testing           | xUnit v3, Testcontainers (MsSql), FluentAssertions |
 
 ## Getting Started
 
@@ -65,7 +68,8 @@ Start the Aspire AppHost to launch all services and the SQL Server container:
 dotnet run --project ToDo.Aspire/ToDo.AppHost
 ```
 
-The Aspire dashboard will be available at `http://localhost:15888` (or as printed in the console). The API Swagger UI is accessible at the `/swagger` endpoint of the service.
+The Aspire dashboard will be available at `http://localhost:15888` (or as printed in the console). The API Swagger UI is accessible at the `/swagger`
+endpoint of the service.
 
 ### Configuration
 
@@ -102,13 +106,11 @@ dotnet test ToDo/tests/ToDo.E2ETest
 
 Integration and E2E tests spin up a real SQL Server instance via Testcontainers. Docker must be running.
 
-### Docker Compose (alternative)
-
-See [`ToDo.Docker/docker-compose-README.md`](ToDo.Docker/docker-compose-README.md) for running the stack via Docker Compose without Aspire.
-
 ## Key Design Patterns
 
-- **BaseAppDatabaseContext\<TContext\>** — EF Core base context with generic type parameter and `ApplyConfigurationsFromAssembly` for convention-based entity configuration. Wired for `DateCreated`/`DateModified` audit timestamps.
-- **Shared Middleware** — `ExceptionMiddleware`, `ValidationExceptionHandler`, and `GlobalExceptionHandler` provide consistent `ProblemDetails` error responses.
+- **BaseAppDatabaseContext\<TContext\>** — EF Core base context with generic type parameter and `ApplyConfigurationsFromAssembly` for convention-based
+  entity configuration. Wired for `DateCreated`/`DateModified` audit timestamps.
+- **Shared Middleware** — `ExceptionMiddleware`, `ValidationExceptionHandler`, and `GlobalExceptionHandler` provide consistent `ProblemDetails` error
+  responses.
 - **Service Defaults** — A shared Aspire project that wires up OpenTelemetry, health checks, service discovery, and HTTP resilience for all services.
 - **Lowercase Routes** — `LowerCaseParameterTransformer` applied globally for consistent API URL casing.
