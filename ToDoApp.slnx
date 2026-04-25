@@ -7,7 +7,7 @@
   </Folder>
   <Folder Name="/src/" />
   <Folder Name="/src/Core/">
-    <Project Path="ToDo/src/ToDo.Application/ToDo..Application.csproj" />
+    <Project Path="ToDo/src/ToDo.Application/ToDo.Application.csproj" />
     <Project Path="ToDo/src/ToDo.Domain/ToDo.Domain.csproj" />
   </Folder>
   <Folder Name="/src/Infrastructure/">

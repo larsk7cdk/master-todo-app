@@ -11,7 +11,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\..\ToDo.Aspire\ToDo.ServiceDefaults\ToDo.ServiceDefaults.csproj" />
-        <ProjectReference Include="..\ToDo.Application\ToDo..Application.csproj"/>
+        <ProjectReference Include="..\ToDo.Application\ToDo.Application.csproj" />
         <ProjectReference Include="..\ToDo.Infrastructure\ToDo.Infrastructure.csproj"/>
         <ProjectReference Include="..\ToDo.Persistence\ToDo.Persistence.csproj"/>
     </ItemGroup>

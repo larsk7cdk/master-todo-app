@@ -29,7 +29,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\src\ToDo.Application\ToDo..Application.csproj" />
+      <ProjectReference Include="..\..\src\ToDo.Application\ToDo.Application.csproj" />
       <ProjectReference Include="..\..\src\ToDo.Persistence\ToDo.Persistence.csproj" />
     </ItemGroup>
 
