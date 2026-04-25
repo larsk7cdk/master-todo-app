@@ -1,11 +1,11 @@
 <Solution>
-  <Folder Name="/src/" />
-  <Folder Name="/src/Aspire/">
+  <Folder Name="/Aspire/">
     <Project Path="ToDo.Aspire/ToDo.ServiceDefaults/ToDo.ServiceDefaults.csproj" />
   </Folder>
-  <Folder Name="/src/Aspire/ToDo.Aspire/">
+  <Folder Name="/Aspire/ToDo.Aspire/">
     <Project Path="ToDo.Aspire/ToDo.AppHost/ToDo.AppHost.csproj" />
   </Folder>
+  <Folder Name="/src/" />
   <Folder Name="/src/Core/">
     <Project Path="ToDo/src/ToDo.Application/ToDo..Application.csproj" />
     <Project Path="ToDo/src/ToDo.Domain/ToDo.Domain.csproj" />
