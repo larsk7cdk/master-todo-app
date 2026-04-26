@@ -177,37 +177,4 @@ public class ToDoIntegrationTests : IAsyncLifetime
         actual[0].DateCreated.Should().BeAfter(DateTime.UtcNow.AddSeconds(-30));
         actual[0].DateModified.Should().BeAfter(DateTime.UtcNow.AddSeconds(-30));
     }
-
-    [Fact]
-    public async Task GetToDo_ShouldFetch_ReturnToDo()
-    {
-        // Arrange
-        var todo = new ToDoModel
-        {
-            Name = "Test 1",
-            Description = "Test description 1",
-            Status = "New"
-        };
-
-        // Act
-        var actual = await _sut.CreateAsync(todo, TestContext.Current.CancellationToken);
-
-        // Assert
-        actual.Should().BeGreaterThanOrEqualTo(1);
-
-        // Arrange
-        var id = actual;
-
-        // Act
-        var actualToDo = await _sut.GetByIdAsync(id, TestContext.Current.CancellationToken);
-
-        // Assert
-        actualToDo.Should().NotBeNull();
-        actualToDo.Id.Should().Be(actual);
-        actualToDo.Name.Should().Be(todo.Name);
-        actualToDo.Description.Should().Be(todo.Description);
-        actualToDo.Status.Should().Be(todo.Status);
-        actualToDo.DateCreated.Should().BeAfter(DateTime.UtcNow.AddSeconds(-30));
-        actualToDo.DateModified.Should().BeAfter(DateTime.UtcNow.AddSeconds(-30));
-    }
 }

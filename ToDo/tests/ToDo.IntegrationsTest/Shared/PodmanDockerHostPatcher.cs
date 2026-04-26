@@ -21,8 +21,9 @@ public static class PodmanDockerHostPatcher
 
             return true;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            Console.WriteLine($"PodmanDockerHostPatcher exception: {ex.Message}");
             return false;
         }
     }

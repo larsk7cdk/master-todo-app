@@ -47,26 +47,25 @@ public class ToDoRepository(AppDatabaseContext context) : ICrudRepository<ToDoMo
 
     public async Task<IReadOnlyList<ToDoModel>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        var entities = await context
+        var models = await context
             .Set<ToDoEntity>()
             .AsNoTracking()
             .OrderBy(x => x.Id)
+            .Select(entity => new ToDoModel
+            {
+                Id = entity.Id,
+                Name = entity.Name,
+                Description = entity.Description,
+                Status = entity.Status,
+                DateCreated = entity.DateCreated,
+                DateModified = entity.DateModified
+            })
             .ToListAsync(cancellationToken);
-
-        var models = entities.Select(entity => new ToDoModel
-        {
-            Id = entity.Id,
-            Name = entity.Name,
-            Description = entity.Description,
-            Status = entity.Status,
-            DateCreated = entity.DateCreated,
-            DateModified = entity.DateModified
-        }).ToList();
 
         return models;
     }
 
-    public async Task<ToDoModel?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<ToDoModel> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
         var entity = await GetEntityAsync(id, asTracking: false, cancellationToken);
 
