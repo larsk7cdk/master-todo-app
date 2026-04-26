@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using ToDo.Application.Interfaces;
 using ToDo.Application.Models;
 using ToDo.Persistence.DatabaseContext;
@@ -26,7 +26,7 @@ public class ToDoRepository(AppDatabaseContext context) : ICrudRepository<ToDoMo
 
     public async Task<int> UpdateAsync(ToDoModel model, CancellationToken cancellationToken = default)
     {
-        var entity = await GetEntityAsync(model.Id, cancellationToken);
+        var entity = await GetEntityAsync(model.Id, asTracking: true, cancellationToken);
 
         entity.Name = model.Name;
         entity.Description = model.Description;
@@ -39,7 +39,7 @@ public class ToDoRepository(AppDatabaseContext context) : ICrudRepository<ToDoMo
 
     public async Task DeleteAsync(int id, CancellationToken cancellationToken = default)
     {
-        var entity = await GetEntityAsync(id, cancellationToken);
+        var entity = await GetEntityAsync(id, asTracking: true, cancellationToken);
 
         context.Remove(entity);
         await context.SaveChangesAsync(cancellationToken);
@@ -50,6 +50,7 @@ public class ToDoRepository(AppDatabaseContext context) : ICrudRepository<ToDoMo
         var entities = await context
             .Set<ToDoEntity>()
             .AsNoTracking()
+            .OrderBy(x => x.Id)
             .ToListAsync(cancellationToken);
 
         var models = entities.Select(entity => new ToDoModel
@@ -67,7 +68,7 @@ public class ToDoRepository(AppDatabaseContext context) : ICrudRepository<ToDoMo
 
     public async Task<ToDoModel?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
-        var entity = await GetEntityAsync(id, cancellationToken);
+        var entity = await GetEntityAsync(id, asTracking: false, cancellationToken);
 
         return new ToDoModel
         {
@@ -80,11 +81,12 @@ public class ToDoRepository(AppDatabaseContext context) : ICrudRepository<ToDoMo
         };
     }
 
-    private async Task<ToDoEntity> GetEntityAsync(int id, CancellationToken cancellationToken = default)
+    private async Task<ToDoEntity> GetEntityAsync(int id, bool asTracking = true, CancellationToken cancellationToken = default)
     {
-        var entity = await context
-            .Set<ToDoEntity>()
-            .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+        var query = context.Set<ToDoEntity>().AsQueryable();
+        if (!asTracking) query = query.AsNoTracking();
+
+        var entity = await query.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 
         return entity ?? throw new NotFoundException(nameof(ToDoEntity), id);
     }

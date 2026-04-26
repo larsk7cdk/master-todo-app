@@ -48,6 +48,21 @@ public class ToDoIntegrationTests : IAsyncLifetime
 
         // Assert
         actual.Should().BeGreaterThanOrEqualTo(1);
+
+
+        // Arrange
+
+        // Act
+        var newToDo = await _sut.GetByIdAsync(actual, TestContext.Current.CancellationToken);
+
+        // Assert
+        newToDo.Should().NotBeNull();
+        newToDo.Id.Should().Be(actual);
+        newToDo.Name.Should().Be(todo.Name);
+        newToDo.Description.Should().Be(todo.Description);
+        newToDo.Status.Should().Be(todo.Status);
+        newToDo.DateCreated.Should().BeAfter(DateTime.UtcNow.AddSeconds(-30));
+        newToDo.DateModified.Should().BeAfter(DateTime.UtcNow.AddSeconds(-30));
     }
 
     [Fact]
@@ -126,11 +141,10 @@ public class ToDoIntegrationTests : IAsyncLifetime
         actual.Should().BeGreaterThanOrEqualTo(1);
 
         // Arrange
-        var id = actual;
 
         // Act
-        await _sut.DeleteAsync(id, TestContext.Current.CancellationToken);
-        var actualEx = async () => await _sut.GetByIdAsync(id, TestContext.Current.CancellationToken);
+        await _sut.DeleteAsync(actual, TestContext.Current.CancellationToken);
+        var actualEx = async () => await _sut.GetByIdAsync(actual, TestContext.Current.CancellationToken);
 
         // Assert
         await actualEx.Should().ThrowAsync<NotFoundException>();
