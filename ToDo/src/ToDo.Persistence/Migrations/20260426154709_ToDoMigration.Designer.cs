@@ -12,7 +12,7 @@ using ToDo.Persistence.DatabaseContext;
 namespace ToDo.Persistence.Migrations
 {
     [DbContext(typeof(AppDatabaseContext))]
-    [Migration("20260426061354_ToDoMigration")]
+    [Migration("20260426154709_ToDoMigration")]
     partial class ToDoMigration
     {
         /// <inheritdoc />
@@ -33,11 +33,11 @@ namespace ToDo.Persistence.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("DateCreated")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("DateCreated")
+                        .HasColumnType("datetimeoffset");
 
-                    b.Property<DateTime>("DateModified")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("DateModified")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Description")
                         .IsRequired()

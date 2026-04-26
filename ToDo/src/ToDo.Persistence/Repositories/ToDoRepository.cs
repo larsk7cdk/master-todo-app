@@ -80,7 +80,7 @@ public class ToDoRepository(AppDatabaseContext context) : ICrudRepository<ToDoMo
         };
     }
 
-    private async Task<ToDoEntity> GetEntityAsync(int id, bool asTracking = true, CancellationToken cancellationToken = default)
+    private async Task<ToDoEntity> GetEntityAsync(int id, bool asTracking, CancellationToken cancellationToken = default)
     {
         var query = context.Set<ToDoEntity>().AsQueryable();
         if (!asTracking) query = query.AsNoTracking();
