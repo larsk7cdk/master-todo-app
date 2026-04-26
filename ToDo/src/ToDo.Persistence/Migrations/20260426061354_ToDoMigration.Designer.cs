@@ -12,8 +12,8 @@ using ToDo.Persistence.DatabaseContext;
 namespace ToDo.Persistence.Migrations
 {
     [DbContext(typeof(AppDatabaseContext))]
-    [Migration("20260425101535_MigrationName")]
-    partial class MigrationName
+    [Migration("20260426061354_ToDoMigration")]
+    partial class ToDoMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
