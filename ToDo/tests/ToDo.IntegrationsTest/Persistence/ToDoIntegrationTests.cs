@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using ToDo.Application.Models;
@@ -35,7 +36,7 @@ public class ToDoIntegrationTests : IAsyncLifetime
     public async Task CreateToDo_ShouldPersist_ReturnToDo()
     {
         // Arrange
-        var model = new ToDoModel
+        var todo = new ToDoModel
         {
             Name = "Test 1",
             Description = "Test description 1",
@@ -43,10 +44,28 @@ public class ToDoIntegrationTests : IAsyncLifetime
         };
 
         // Act
-        var actual = await _sut.CreateAsync(model, TestContext.Current.CancellationToken);
+        var actual = await _sut.CreateAsync(todo, TestContext.Current.CancellationToken);
 
         // Assert
         actual.Should().BeGreaterThanOrEqualTo(1);
+    }
+
+    [Fact]
+    public async Task CreateToDo_InvalidRequest_ReturnException()
+    {
+        // Arrange
+        var todo = new ToDoModel
+        {
+            Name = "012345678901234567890123456789012345678901234567891",
+            Description = "Test description 1",
+            Status = "New"
+        };
+
+        // Act
+        var actualEx = async () => await _sut.CreateAsync(todo, TestContext.Current.CancellationToken);
+
+        // Assert
+        await actualEx.Should().ThrowAsync<ValidationException>();
     }
 
     [Fact]
@@ -78,7 +97,7 @@ public class ToDoIntegrationTests : IAsyncLifetime
         // Act
         var actualUpdate = await _sut.UpdateAsync(todoUpdate, TestContext.Current.CancellationToken);
         var actualToDo = await _sut.GetByIdAsync(actualUpdate, TestContext.Current.CancellationToken);
-        
+
         // Assert
         actualToDo.Should().NotBeNull();
         actualToDo.Id.Should().Be(actual);

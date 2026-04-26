@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
 using ToDo.Persistence.Entities;
 
@@ -28,6 +29,8 @@ public abstract class BaseAppDatabaseContext<TContext>(DbContextOptions<TContext
             {
                 entry.Entity.DateCreated = DateTime.UtcNow;
             }
+
+            Validator.ValidateObject(entry.Entity, new ValidationContext(entry.Entity), validateAllProperties: true);
         }
 
         return base.SaveChangesAsync(cancellationToken);
