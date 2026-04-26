@@ -61,8 +61,8 @@ public class ToDoIntegrationTests : IAsyncLifetime
         newToDo.Name.Should().Be(todo.Name);
         newToDo.Description.Should().Be(todo.Description);
         newToDo.Status.Should().Be(todo.Status);
-        newToDo.DateCreated.Should().BeAfter(DateTime.UtcNow.AddSeconds(-30));
-        newToDo.DateModified.Should().BeAfter(DateTime.UtcNow.AddSeconds(-30));
+        newToDo.DateCreated.Should().BeAfter(DateTimeOffset.UtcNow.AddSeconds(-30));
+        newToDo.DateModified.Should().BeAfter(DateTimeOffset.UtcNow.AddSeconds(-30));
     }
 
     [Fact]
@@ -119,8 +119,8 @@ public class ToDoIntegrationTests : IAsyncLifetime
         actualToDo.Name.Should().Be(todoUpdate.Name);
         actualToDo.Description.Should().Be(todoUpdate.Description);
         actualToDo.Status.Should().Be(todoUpdate.Status);
-        actualToDo.DateCreated.Should().BeAfter(DateTime.UtcNow.AddSeconds(-30));
-        actualToDo.DateModified.Should().BeAfter(DateTime.UtcNow.AddSeconds(-30));
+        actualToDo.DateCreated.Should().BeAfter(DateTimeOffset.UtcNow.AddSeconds(-30));
+        actualToDo.DateModified.Should().BeAfter(DateTimeOffset.UtcNow.AddSeconds(-30));
     }
 
     [Fact]
@@ -174,7 +174,7 @@ public class ToDoIntegrationTests : IAsyncLifetime
         actual[0].Name.Should().Be("Test 0");
         actual[0].Description.Should().Be("Test description 0");
         actual[0].Status.Should().Be("New");
-        actual[0].DateCreated.Should().BeAfter(DateTime.UtcNow.AddSeconds(-30));
-        actual[0].DateModified.Should().BeAfter(DateTime.UtcNow.AddSeconds(-30));
+        actual[0].DateCreated.Should().BeAfter(DateTimeOffset.UtcNow.AddSeconds(-30));
+        actual[0].DateModified.Should().BeAfter(DateTimeOffset.UtcNow.AddSeconds(-30));
     }
 }
