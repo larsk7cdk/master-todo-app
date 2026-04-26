@@ -2,9 +2,11 @@
 
 public static class PodmanDockerHostPatcher
 {
-    public static bool EnsurePatched() => Patch();
+    private static readonly bool Patched = Patch();
 
-    private static bool Patch()
+    public static bool EnsurePatched() => Patched;
+
+    public static bool Patch()
     {
         const string badPrefix = "npipe:////";
         const string goodPrefix = "npipe://";
@@ -19,7 +21,7 @@ public static class PodmanDockerHostPatcher
 
             return true;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             return false;
         }

@@ -23,7 +23,7 @@ public static class DependencyInjection
             options.UseSqlServer(connectionString);
         });
 
-        services.AddScoped<ICrudRepository<ToDoModel>, ToDoRepository<ToDoModel>>();
+        services.AddScoped<ICrudRepository<ToDoModel>, ToDoRepository>();
 
         return services;
     }

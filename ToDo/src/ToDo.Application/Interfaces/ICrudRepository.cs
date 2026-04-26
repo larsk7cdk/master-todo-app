@@ -1,8 +1,6 @@
-﻿using ToDo.Application.Models;
+﻿namespace ToDo.Application.Interfaces;
 
-namespace ToDo.Application.Interfaces;
-
-public interface ICrudRepository<TModel> where TModel : BaseModel
+public interface ICrudRepository<TModel>
 {
     Task<int> CreateAsync(TModel model, CancellationToken cancellationToken = default);
     Task<int> UpdateAsync(TModel model, CancellationToken cancellationToken = default);

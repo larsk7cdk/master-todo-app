@@ -11,7 +11,7 @@ namespace ToDo.IntegrationsTest.Persistence;
 public class ToDoIntegrationTests : IAsyncLifetime
 {
     private DatabaseFixture _fixture = null!;
-    private ToDoRepository<ToDoModel> _sut = null!;
+    private ToDoRepository _sut = null!;
 
     public async ValueTask InitializeAsync()
     {
@@ -22,7 +22,7 @@ public class ToDoIntegrationTests : IAsyncLifetime
             .UseSqlServer(_fixture.ConnectionString)
             .Options;
 
-        _sut = new ToDoRepository<ToDoModel>(new AppDatabaseContext(options));
+        _sut = new ToDoRepository(new AppDatabaseContext(options));
     }
 
     public async ValueTask DisposeAsync()
@@ -77,9 +77,16 @@ public class ToDoIntegrationTests : IAsyncLifetime
 
         // Act
         var actualUpdate = await _sut.UpdateAsync(todoUpdate, TestContext.Current.CancellationToken);
-
+        var actualToDo = await _sut.GetByIdAsync(actualUpdate, TestContext.Current.CancellationToken);
+        
         // Assert
-        actualUpdate.Should().Be(actual);
+        actualToDo.Should().NotBeNull();
+        actualToDo.Id.Should().Be(actual);
+        actualToDo.Name.Should().Be(todoUpdate.Name);
+        actualToDo.Description.Should().Be(todoUpdate.Description);
+        actualToDo.Status.Should().Be(todoUpdate.Status);
+        actualToDo.DateCreated.Should().BeAfter(DateTime.UtcNow.AddSeconds(-30));
+        actualToDo.DateModified.Should().BeAfter(DateTime.UtcNow.AddSeconds(-30));
     }
 
     [Fact]

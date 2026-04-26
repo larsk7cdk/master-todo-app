@@ -7,10 +7,9 @@ using ToDo.Shared.Application.Exceptions;
 
 namespace ToDo.Persistence.Repositories;
 
-public class ToDoRepository<TModel>(AppDatabaseContext context) : ICrudRepository<TModel>
-    where TModel : ToDoModel
+public class ToDoRepository(AppDatabaseContext context) : ICrudRepository<ToDoModel>
 {
-    public async Task<int> CreateAsync(TModel model, CancellationToken cancellationToken = default)
+    public async Task<int> CreateAsync(ToDoModel model, CancellationToken cancellationToken = default)
     {
         var entity = new ToDoEntity
         {
@@ -25,7 +24,7 @@ public class ToDoRepository<TModel>(AppDatabaseContext context) : ICrudRepositor
         return entity.Id;
     }
 
-    public async Task<int> UpdateAsync(TModel model, CancellationToken cancellationToken = default)
+    public async Task<int> UpdateAsync(ToDoModel model, CancellationToken cancellationToken = default)
     {
         var entity = await GetEntityAsync(model.Id, cancellationToken);
 
@@ -46,7 +45,7 @@ public class ToDoRepository<TModel>(AppDatabaseContext context) : ICrudRepositor
         await context.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<IReadOnlyList<TModel>> GetAllAsync(CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<ToDoModel>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         var entities = await context
             .Set<ToDoEntity>()
@@ -63,24 +62,22 @@ public class ToDoRepository<TModel>(AppDatabaseContext context) : ICrudRepositor
             DateModified = entity.DateModified
         }).ToList();
 
-        return (IReadOnlyList<TModel>)models;
+        return models;
     }
 
-    public async Task<TModel?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<ToDoModel?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
         var entity = await GetEntityAsync(id, cancellationToken);
 
-        return entity != null
-            ? (TModel?)new ToDoModel
-            {
-                Id = entity.Id,
-                Name = entity.Name,
-                Description = entity.Description,
-                Status = entity.Status,
-                DateCreated = entity.DateCreated,
-                DateModified = entity.DateModified
-            }
-            : throw new NotFoundException(typeof(TModel).Name, id);
+        return new ToDoModel
+        {
+            Id = entity.Id,
+            Name = entity.Name,
+            Description = entity.Description,
+            Status = entity.Status,
+            DateCreated = entity.DateCreated,
+            DateModified = entity.DateModified
+        };
     }
 
     private async Task<ToDoEntity> GetEntityAsync(int id, CancellationToken cancellationToken = default)
