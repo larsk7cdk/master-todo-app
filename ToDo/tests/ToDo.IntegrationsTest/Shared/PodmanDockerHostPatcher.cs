@@ -6,7 +6,7 @@ public static class PodmanDockerHostPatcher
 
     public static bool EnsurePatched() => Patched;
 
-    public static bool Patch()
+    private static bool Patch()
     {
         const string badPrefix = "npipe:////";
         const string goodPrefix = "npipe://";

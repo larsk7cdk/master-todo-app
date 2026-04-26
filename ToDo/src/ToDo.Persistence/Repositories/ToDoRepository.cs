@@ -28,9 +28,12 @@ public class ToDoRepository(AppDatabaseContext context) : ICrudRepository<ToDoMo
     {
         var entity = await GetEntityAsync(model.Id, asTracking: true, cancellationToken);
 
-        entity.Name = model.Name;
-        entity.Description = model.Description;
-        entity.Status = model.Status;
+        context.Entry(entity).CurrentValues.SetValues(new
+        {
+            model.Name,
+            model.Description,
+            model.Status
+        });
 
         await context.SaveChangesAsync(cancellationToken);
 

@@ -23,11 +23,11 @@ public abstract class BaseAppDatabaseContext<TContext>(DbContextOptions<TContext
         foreach (var entry in base.ChangeTracker.Entries<BaseEntity>()
                      .Where(x => x.State == EntityState.Added || x.State == EntityState.Modified))
         {
-            entry.Entity.DateModified = DateTime.UtcNow;
+            entry.Entity.DateModified = DateTimeOffset.UtcNow;
 
             if (entry.State == EntityState.Added)
             {
-                entry.Entity.DateCreated = DateTime.UtcNow;
+                entry.Entity.DateCreated = DateTimeOffset.UtcNow;
             }
 
             Validator.ValidateObject(entry.Entity, new ValidationContext(entry.Entity), validateAllProperties: true);
