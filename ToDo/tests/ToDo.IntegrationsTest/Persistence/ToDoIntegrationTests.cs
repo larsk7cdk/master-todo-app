@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using ToDo.Application.Models;
 using ToDo.IntegrationsTest.Shared;
 using ToDo.Persistence.DatabaseContext;
+using ToDo.Persistence.Entities;
 using ToDo.Persistence.Repositories;
 using ToDo.Shared.Application.Exceptions;
 
@@ -12,6 +13,7 @@ namespace ToDo.IntegrationsTest.Persistence;
 public class ToDoIntegrationTests : IAsyncLifetime
 {
     private DatabaseFixture _fixture = null!;
+    private AppDatabaseContext _appDatabaseContext = null!;
     private ToDoRepository _sut = null!;
 
     public async ValueTask InitializeAsync()
@@ -23,7 +25,8 @@ public class ToDoIntegrationTests : IAsyncLifetime
             .UseSqlServer(_fixture.ConnectionString)
             .Options;
 
-        _sut = new ToDoRepository(new AppDatabaseContext(options));
+        _appDatabaseContext = new AppDatabaseContext(options);
+        _sut = new ToDoRepository(_appDatabaseContext);
     }
 
     public async ValueTask DisposeAsync()
@@ -49,13 +52,7 @@ public class ToDoIntegrationTests : IAsyncLifetime
         // Assert
         actual.Should().BeGreaterThanOrEqualTo(1);
 
-
-        // Arrange
-
-        // Act
-        var newToDo = await _sut.GetByIdAsync(actual, TestContext.Current.CancellationToken);
-
-        // Assert
+        var newToDo = await _appDatabaseContext.ToDos.FirstOrDefaultAsync(s => s.Name == todo.Name, TestContext.Current.CancellationToken);
         newToDo.Should().NotBeNull();
         newToDo.Id.Should().Be(actual);
         newToDo.Name.Should().Be(todo.Name);
@@ -87,23 +84,19 @@ public class ToDoIntegrationTests : IAsyncLifetime
     public async Task UpdateToDo_ShouldPersist_ReturnUpdatedToDo()
     {
         // Arrange
-        var todo = new ToDoModel
+        var todo = new ToDoEntity
         {
             Name = "Test 1",
             Description = "Test description 1",
             Status = "New"
         };
 
-        // Act
-        var actual = await _sut.CreateAsync(todo, TestContext.Current.CancellationToken);
+        _appDatabaseContext.ToDos.Add(todo);
+        var id = await _appDatabaseContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        // Assert
-        actual.Should().BeGreaterThanOrEqualTo(1);
-
-        // Arrange
         var todoUpdate = new ToDoModel
         {
-            Id = actual,
+            Id = id,
             Name = "Test 2",
             Description = "Test description 2",
             Status = "Ongoing"
@@ -111,40 +104,35 @@ public class ToDoIntegrationTests : IAsyncLifetime
 
         // Act
         var actualUpdate = await _sut.UpdateAsync(todoUpdate, TestContext.Current.CancellationToken);
-        var actualToDo = await _sut.GetByIdAsync(actualUpdate, TestContext.Current.CancellationToken);
 
         // Assert
-        actualToDo.Should().NotBeNull();
-        actualToDo.Id.Should().Be(actual);
-        actualToDo.Name.Should().Be(todoUpdate.Name);
-        actualToDo.Description.Should().Be(todoUpdate.Description);
-        actualToDo.Status.Should().Be(todoUpdate.Status);
-        actualToDo.DateCreated.Should().BeAfter(DateTimeOffset.UtcNow.AddSeconds(-30));
-        actualToDo.DateModified.Should().BeAfter(DateTimeOffset.UtcNow.AddSeconds(-30));
+        var updateToDo = await _appDatabaseContext.ToDos.FirstOrDefaultAsync(s => s.Id == actualUpdate, TestContext.Current.CancellationToken);
+        updateToDo.Should().NotBeNull();
+        updateToDo.Id.Should().Be(id);
+        updateToDo.Name.Should().Be(todoUpdate.Name);
+        updateToDo.Description.Should().Be(todoUpdate.Description);
+        updateToDo.Status.Should().Be(todoUpdate.Status);
+        updateToDo.DateCreated.Should().BeAfter(DateTimeOffset.UtcNow.AddSeconds(-30));
+        updateToDo.DateModified.Should().BeAfter(DateTimeOffset.UtcNow.AddSeconds(-30));
     }
 
     [Fact]
     public async Task DeleteToDo_ShouldPersist_ReturnNoToDo()
     {
         // Arrange
-        var todo = new ToDoModel
+        var todo = new ToDoEntity
         {
             Name = "Test 1",
             Description = "Test description 1",
             Status = "New"
         };
 
-        // Act
-        var actual = await _sut.CreateAsync(todo, TestContext.Current.CancellationToken);
-
-        // Assert
-        actual.Should().BeGreaterThanOrEqualTo(1);
-
-        // Arrange
+        _appDatabaseContext.ToDos.Add(todo);
+        var id = await _appDatabaseContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         // Act
-        await _sut.DeleteAsync(actual, TestContext.Current.CancellationToken);
-        var actualEx = async () => await _sut.GetByIdAsync(actual, TestContext.Current.CancellationToken);
+        await _sut.DeleteAsync(id, TestContext.Current.CancellationToken);
+        var actualEx = async () => await _sut.GetByIdAsync(id, TestContext.Current.CancellationToken);
 
         // Assert
         await actualEx.Should().ThrowAsync<NotFoundException>();
@@ -154,16 +142,20 @@ public class ToDoIntegrationTests : IAsyncLifetime
     public async Task CreateMultipleToDo_ShouldPersist_ReturnToDos()
     {
         // Arrange
+        List<ToDoEntity> entities = [];
+
         for (int i = 0; i < 10; i++)
         {
-            var todo = new ToDoModel
+            entities.Add(new ToDoEntity
             {
                 Name = $"Test {i}",
                 Description = $"Test description {i}",
                 Status = "New"
-            };
-            await _sut.CreateAsync(todo, TestContext.Current.CancellationToken);
+            });
         }
+
+        _appDatabaseContext.ToDos.AddRange(entities);
+        await _appDatabaseContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         // Act
         var actual = await _sut.GetAllAsync(TestContext.Current.CancellationToken);

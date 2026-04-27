@@ -3,6 +3,7 @@ using ToDo.Application.Interfaces;
 using ToDo.Application.Models;
 using ToDo.Persistence.DatabaseContext;
 using ToDo.Persistence.Entities;
+using ToDo.Persistence.Mappers;
 using ToDo.Shared.Application.Exceptions;
 
 namespace ToDo.Persistence.Repositories;
@@ -11,12 +12,7 @@ public class ToDoRepository(AppDatabaseContext context) : ICrudRepository<ToDoMo
 {
     public async Task<int> CreateAsync(ToDoModel model, CancellationToken cancellationToken = default)
     {
-        var entity = new ToDoEntity
-        {
-            Name = model.Name,
-            Description = model.Description,
-            Status = model.Status
-        };
+        var entity = model.MapToEntity();
 
         await context.AddAsync(entity, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
@@ -54,15 +50,7 @@ public class ToDoRepository(AppDatabaseContext context) : ICrudRepository<ToDoMo
             .Set<ToDoEntity>()
             .AsNoTracking()
             .OrderBy(x => x.Id)
-            .Select(entity => new ToDoModel
-            {
-                Id = entity.Id,
-                Name = entity.Name,
-                Description = entity.Description,
-                Status = entity.Status,
-                DateCreated = entity.DateCreated,
-                DateModified = entity.DateModified
-            })
+            .Select(entity => entity.MapToModel())
             .ToListAsync(cancellationToken);
 
         return models;
@@ -71,16 +59,7 @@ public class ToDoRepository(AppDatabaseContext context) : ICrudRepository<ToDoMo
     public async Task<ToDoModel> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
         var entity = await GetEntityAsync(id, asTracking: false, cancellationToken);
-
-        return new ToDoModel
-        {
-            Id = entity.Id,
-            Name = entity.Name,
-            Description = entity.Description,
-            Status = entity.Status,
-            DateCreated = entity.DateCreated,
-            DateModified = entity.DateModified
-        };
+        return entity.MapToModel();
     }
 
     private async Task<ToDoEntity> GetEntityAsync(int id, bool asTracking, CancellationToken cancellationToken = default)
