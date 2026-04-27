@@ -50,8 +50,6 @@ public class ToDoIntegrationTests : IAsyncLifetime
         var actual = await _sut.CreateAsync(todo, TestContext.Current.CancellationToken);
 
         // Assert
-        actual.Should().BeGreaterThanOrEqualTo(1);
-
         var newToDo = await _appDatabaseContext.ToDos.FirstOrDefaultAsync(s => s.Name == todo.Name, TestContext.Current.CancellationToken);
         newToDo.Should().NotBeNull();
         newToDo.Id.Should().Be(actual);
@@ -92,7 +90,8 @@ public class ToDoIntegrationTests : IAsyncLifetime
         };
 
         _appDatabaseContext.ToDos.Add(todo);
-        var id = await _appDatabaseContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+        await _appDatabaseContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+        var id = todo.Id;
 
         var todoUpdate = new ToDoModel
         {
@@ -128,7 +127,8 @@ public class ToDoIntegrationTests : IAsyncLifetime
         };
 
         _appDatabaseContext.ToDos.Add(todo);
-        var id = await _appDatabaseContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+        await _appDatabaseContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+        var id = todo.Id;
 
         // Act
         await _sut.DeleteAsync(id, TestContext.Current.CancellationToken);
