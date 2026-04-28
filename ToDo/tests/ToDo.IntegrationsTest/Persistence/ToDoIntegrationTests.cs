@@ -139,7 +139,34 @@ public class ToDoIntegrationTests : IAsyncLifetime
     }
 
     [Fact]
-    public async Task CreateMultipleToDo_ShouldPersist_ReturnToDos()
+    public async Task GetToDoById_ShouldRead_ReturnToDo()
+    {
+        // Arrange
+        var todo = new ToDoEntity
+        {
+            Name = $"Test",
+            Description = $"Test description",
+            Status = "New"
+        };
+
+        _appDatabaseContext.ToDos.Add(todo);
+        await _appDatabaseContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        // Act
+        var actual = await _sut.GetByIdAsync(todo.Id, TestContext.Current.CancellationToken);
+
+        // Assert
+        actual.Should().NotBeNull();
+        actual.Id.Should().BeGreaterThanOrEqualTo(1);
+        actual.Name.Should().Be("Test");
+        actual.Description.Should().Be("Test description");
+        actual.Status.Should().Be("New");
+        actual.DateCreated.Should().BeAfter(DateTimeOffset.UtcNow.AddSeconds(-30));
+        actual.DateModified.Should().BeAfter(DateTimeOffset.UtcNow.AddSeconds(-30));
+    }
+
+    [Fact]
+    public async Task ReadAllToDos_ShouldReadAll_ReturnToDos()
     {
         // Arrange
         List<ToDoEntity> entities = [];
