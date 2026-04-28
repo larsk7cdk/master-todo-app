@@ -1,9 +1,9 @@
-﻿using ToDo.Application.Models;
+﻿using ToDo.Domain.Models;
 using ToDo.Persistence.Entities;
 
 namespace ToDo.Persistence.Mappers;
 
-public static class ToDoMapper
+public static class ToDoPersistenceMapper
 {
     public static ToDoEntity MapToEntity(this ToDoModel model) => new()
     {

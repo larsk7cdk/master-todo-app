@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
-using ToDo.Application.Models;
+using ToDo.Domain.Models;
 using ToDo.IntegrationsTest.Shared;
 using ToDo.Persistence.DatabaseContext;
 using ToDo.Persistence.Entities;

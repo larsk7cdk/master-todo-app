@@ -1,11 +1,11 @@
 ﻿using FluentAssertions;
-using ToDo.Application.Models;
+using ToDo.Domain.Models;
 using ToDo.Persistence.Entities;
 using ToDo.Persistence.Mappers;
 
 namespace ToDo.UnitTest.Persistence;
 
-public class ToDoMapperTests
+public class ToDoPersistenceMapperTests
 {
     [Fact]
     public void MapToEntity_MapFromModel_MapsCorrectly()

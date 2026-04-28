@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using ToDo.Application.Interfaces;
-using ToDo.Application.Models;
+using ToDo.Domain.Models;
 using ToDo.Persistence.DatabaseContext;
 using ToDo.Persistence.Repositories;
 

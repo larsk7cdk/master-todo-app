@@ -1,4 +1,4 @@
-﻿using ToDo.Application.Models;
+﻿using ToDo.Domain.Models;
 
 namespace ToDo.Application.Interfaces;
 

@@ -1,4 +1,4 @@
-﻿namespace ToDo.Application.Models;
+﻿namespace ToDo.Domain.Models;
 
 public class BaseModel
 {
