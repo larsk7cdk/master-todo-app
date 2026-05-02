@@ -24,7 +24,7 @@ public class DependencyInjectionTests
     }
 
     [Fact]
-    public void AddApplication_ToDoCreateRequestServiceKey_ResolvesToDoCreateRequestService()
+    public void ToDoCreateRequestServiceKey_ResolvesToDoCreateRequestService()
     {
         // Arrange
         using var provider = BuildServiceProvider();
@@ -37,7 +37,7 @@ public class DependencyInjectionTests
     }
 
     [Fact]
-    public void AddApplication_ToDoUpdateRequestServiceKey_ResolvesToDoUpdateRequestService()
+    public void ToDoUpdateRequestServiceKey_ResolvesToDoUpdateRequestService()
     {
         // Arrange
         using var provider = BuildServiceProvider();
@@ -50,7 +50,7 @@ public class DependencyInjectionTests
     }
 
     [Fact]
-    public void AddApplication_ToDoDeleteRequestServiceKey_ResolvesToDoDeleteRequestService()
+    public void ToDoDeleteRequestServiceKey_ResolvesToDoDeleteRequestService()
     {
         // Arrange
         using var provider = BuildServiceProvider();
@@ -63,7 +63,7 @@ public class DependencyInjectionTests
     }
 
     [Fact]
-    public void AddApplication_ToDoReadAllRequestServiceKey_ResolvesToDoReadAllRequestService()
+    public void ToDoReadAllRequestServiceKey_ResolvesToDoReadAllRequestService()
     {
         // Arrange
         using var provider = BuildServiceProvider();
@@ -76,7 +76,7 @@ public class DependencyInjectionTests
     }
 
     [Fact]
-    public void AddApplication_ToDoReadDetailsRequestServiceKey_ResolvesToDoReadDetailsRequestService()
+    public void ToDoReadDetailsRequestServiceKey_ResolvesToDoReadDetailsRequestService()
     {
         // Arrange
         using var provider = BuildServiceProvider();
