@@ -26,7 +26,7 @@ public static class DependencyInjection
             .AddKeyedScoped<IRequestHandler<ToDoModel, int>, ToDoCreateRequestService>(KeyedServices.ToDoCreateRequestServiceKey)
             .AddKeyedScoped<IRequestHandler<ToDoModel, int>, ToDoUpdateRequestService>(KeyedServices.ToDoUpdateRequestServiceKey)
             .AddKeyedScoped<IRequestHandler<int>, ToDoDeleteRequestService>(KeyedServices.ToDoDeleteRequestServiceKey)
-            .AddKeyedScoped<IResponseHandler<IList<ToDoModel>>, ToDoReadAllRequestService>(KeyedServices.ToDoReadAllRequestServiceKey)
+            .AddKeyedScoped<IQueryHandler<IList<ToDoModel>>, ToDoReadAllRequestService>(KeyedServices.ToDoReadAllRequestServiceKey)
             .AddKeyedScoped<IRequestHandler<int, ToDoModel>, ToDoReadDetailsRequestService>(KeyedServices.ToDoReadDetailsRequestServiceKey);
 
         return services;

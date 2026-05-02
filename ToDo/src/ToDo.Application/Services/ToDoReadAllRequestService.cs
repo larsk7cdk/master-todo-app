@@ -6,7 +6,7 @@ namespace ToDo.Application.Services;
 
 public partial class ToDoReadAllRequestService(
     ICrudRepository<ToDoModel> repository,
-    ILogger<ToDoReadAllRequestService> logger) : IResponseHandler<IList<ToDoModel>>
+    ILogger<ToDoReadAllRequestService> logger) : IQueryHandler<IList<ToDoModel>>
 {
     public async Task<IList<ToDoModel>> InvokeAsync(CancellationToken cancellationToken = default)
     {

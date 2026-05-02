@@ -69,7 +69,7 @@ public class DependencyInjectionTests
         using var provider = BuildServiceProvider();
 
         // Act
-        var service = provider.GetRequiredKeyedService<IResponseHandler<IList<ToDoModel>>>(KeyedServices.ToDoReadAllRequestServiceKey);
+        var service = provider.GetRequiredKeyedService<IQueryHandler<IList<ToDoModel>>>(KeyedServices.ToDoReadAllRequestServiceKey);
 
         // Assert
         service.Should().BeOfType<ToDoReadAllRequestService>();
