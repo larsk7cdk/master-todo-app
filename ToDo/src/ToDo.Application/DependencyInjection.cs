@@ -20,7 +20,6 @@ public static class DependencyInjection
             .AddFluentValidationAutoValidation(cfg => { cfg.DisableDataAnnotationsValidation = true; })
             .AddValidatorsFromAssembly(assembly);
 
-
         // Add RequestHandlers
         services
             .AddKeyedScoped<IRequestHandler<ToDoModel, int>, ToDoCreateRequestService>(KeyedServices.ToDoCreateRequestServiceKey)

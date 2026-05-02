@@ -103,11 +103,10 @@ public class ToDoIntegrationTests : IAsyncLifetime
 
         // Assert
         actualToDo.Should().NotBeNull();
-        actualToDo.Name.Should().Be(todo.Name);
-        actualToDo.Description.Should().Be(todo.Description);
-        actualToDo.Status.Should().Be(todo.Status);
-
         actual.Should().Be(actualToDo.Id);
+        actualToDo.Name.Should().Be(todoUpdate.Name);
+        actualToDo.Description.Should().Be(todoUpdate.Description);
+        actualToDo.Status.Should().Be(todoUpdate.Status);
 
         logger.ReceivedCalls().Should().ContainSingle(c => c.GetMethodInfo().Name == "Log");
     }
