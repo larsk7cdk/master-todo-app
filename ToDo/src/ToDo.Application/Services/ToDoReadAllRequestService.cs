@@ -16,6 +16,6 @@ public partial class ToDoReadAllRequestService(
         return model.ToList();
     }
 
-    [LoggerMessage(LogLevel.Information, "Read All ToDoøs")]
+    [LoggerMessage(LogLevel.Information, "Read All ToDo's")]
     partial void LogToDoReadAll();
 }

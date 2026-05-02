@@ -15,6 +15,6 @@ public partial class ToDoDeleteRequestService(
         await repository.DeleteAsync(id, cancellationToken);
     }
 
-    [LoggerMessage(LogLevel.Information, "Updating ToDo with Name: {id}")]
+    [LoggerMessage(LogLevel.Information, "Updating ToDo with ID: {id}")]
     partial void LogToDoDelete(int id);
 }
