@@ -1,7 +1,3 @@
-using System.Reflection;
-using FluentValidation;
-using FluentValidation.AspNetCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using ToDo.Application.Interfaces;
 using ToDo.Application.Services;
@@ -11,15 +7,8 @@ namespace ToDo.Application;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddApplication(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddApplication(this IServiceCollection services)
     {
-        var assembly = Assembly.GetExecutingAssembly();
-
-        // Add validation
-        services
-            .AddFluentValidationAutoValidation(cfg => { cfg.DisableDataAnnotationsValidation = true; })
-            .AddValidatorsFromAssembly(assembly);
-
         // Add RequestHandlers
         services
             .AddKeyedScoped<IRequestHandler<ToDoModel, int>, ToDoCreateRequestService>(KeyedServices.ToDoCreateRequestServiceKey)

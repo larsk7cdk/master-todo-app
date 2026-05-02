@@ -18,7 +18,7 @@ public class DependencyInjectionTests
         services.AddLogging();
         services.AddControllers();
         services.AddScoped<ICrudRepository<ToDoModel>, StubRepository>();
-        services.AddApplication(configuration);
+        services.AddApplication();
 
         return services.BuildServiceProvider();
     }
