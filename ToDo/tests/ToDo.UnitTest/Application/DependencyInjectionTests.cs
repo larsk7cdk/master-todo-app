@@ -30,7 +30,7 @@ public class DependencyInjectionTests
         using var provider = BuildServiceProvider();
 
         // Act
-        var service = provider.GetRequiredKeyedService<IRequestHandler<ToDoModel, int>>("ToDoCreateRequestService");
+        var service = provider.GetRequiredKeyedService<IRequestHandler<ToDoModel, int>>(KeyedServices.ToDoCreateRequestServiceKey);
 
         // Assert
         service.Should().BeOfType<ToDoCreateRequestService>();
@@ -43,7 +43,7 @@ public class DependencyInjectionTests
         using var provider = BuildServiceProvider();
 
         // Act
-        var service = provider.GetRequiredKeyedService<IRequestHandler<ToDoModel, int>>("ToDoUpdateRequestService");
+        var service = provider.GetRequiredKeyedService<IRequestHandler<ToDoModel, int>>(KeyedServices.ToDoUpdateRequestServiceKey);
 
         // Assert
         service.Should().BeOfType<ToDoUpdateRequestService>();
@@ -56,7 +56,7 @@ public class DependencyInjectionTests
         using var provider = BuildServiceProvider();
 
         // Act
-        var service = provider.GetRequiredKeyedService<IRequestHandler<int>>("ToDoDeleteRequestService");
+        var service = provider.GetRequiredKeyedService<IRequestHandler<int>>(KeyedServices.ToDoDeleteRequestServiceKey);
 
         // Assert
         service.Should().BeOfType<ToDoDeleteRequestService>();
@@ -69,7 +69,7 @@ public class DependencyInjectionTests
         using var provider = BuildServiceProvider();
 
         // Act
-        var service = provider.GetRequiredKeyedService<IResponseHandler<IList<ToDoModel>>>("ToDoReadAllRequestService");
+        var service = provider.GetRequiredKeyedService<IResponseHandler<IList<ToDoModel>>>(KeyedServices.ToDoReadAllRequestServiceKey);
 
         // Assert
         service.Should().BeOfType<ToDoReadAllRequestService>();
@@ -82,7 +82,7 @@ public class DependencyInjectionTests
         using var provider = BuildServiceProvider();
 
         // Act
-        var service = provider.GetRequiredKeyedService<IRequestHandler<int, ToDoModel>>("ToDoReadDetailsRequestService");
+        var service = provider.GetRequiredKeyedService<IRequestHandler<int, ToDoModel>>(KeyedServices.ToDoReadDetailsRequestServiceKey);
 
         // Assert
         service.Should().BeOfType<ToDoReadDetailsRequestService>();

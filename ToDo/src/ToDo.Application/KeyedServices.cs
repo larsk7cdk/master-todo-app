@@ -1,10 +1,10 @@
 ﻿namespace ToDo.Application;
 
-internal static class KeyedServices
+public static class KeyedServices
 {
-    public static readonly string ToDoCreateRequestServiceKey = "ToDoCreateRequestService";
-    public static readonly string ToDoUpdateRequestServiceKey = "ToDoUpdateRequestService";
-    public static readonly string ToDoDeleteRequestServiceKey = "ToDoDeleteRequestService";
-    public static readonly string ToDoReadAllRequestServiceKey = "ToDoReadAllRequestService";
-    public static readonly string ToDoReadDetailsRequestServiceKey = "ToDoReadDetailsRequestService";
+    public const string ToDoCreateRequestServiceKey = "ToDoCreateRequestService";
+    public const string ToDoUpdateRequestServiceKey = "ToDoUpdateRequestService";
+    public const string ToDoDeleteRequestServiceKey = "ToDoDeleteRequestService";
+    public const string ToDoReadAllRequestServiceKey = "ToDoReadAllRequestService";
+    public const string ToDoReadDetailsRequestServiceKey = "ToDoReadDetailsRequestService";
 }
