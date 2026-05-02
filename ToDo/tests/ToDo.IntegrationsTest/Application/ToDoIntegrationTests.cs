@@ -55,7 +55,7 @@ public class ToDoIntegrationTests : IAsyncLifetime
         // Act
         var actual = await sut.InvokeAsync(todo, TestContext.Current.CancellationToken);
         var actualToDo = await _appDatabaseContext.ToDos
-            .FirstOrDefaultAsync(x => x.Name == todo.Name, cancellationToken: TestContext.Current.CancellationToken);
+            .FirstOrDefaultAsync(x => x.Id == actual, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         actualToDo.Should().NotBeNull();
