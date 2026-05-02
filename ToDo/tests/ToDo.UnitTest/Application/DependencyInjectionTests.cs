@@ -1,0 +1,103 @@
+using FluentAssertions;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using ToDo.Application;
+using ToDo.Application.Interfaces;
+using ToDo.Application.Services;
+using ToDo.Domain.Models;
+
+namespace ToDo.UnitTest.Application;
+
+public class DependencyInjectionTests
+{
+    private static ServiceProvider BuildServiceProvider()
+    {
+        var services = new ServiceCollection();
+        var configuration = new ConfigurationBuilder().Build();
+
+        services.AddLogging();
+        services.AddControllers();
+        services.AddScoped<ICrudRepository<ToDoModel>, StubRepository>();
+        services.AddApplication(configuration);
+
+        return services.BuildServiceProvider();
+    }
+
+    [Fact]
+    public void AddApplication_ToDoCreateRequestServiceKey_ResolvesToDoCreateRequestService()
+    {
+        // Arrange
+        using var provider = BuildServiceProvider();
+
+        // Act
+        var service = provider.GetRequiredKeyedService<IRequestHandler<ToDoModel, int>>("ToDoCreateRequestService");
+
+        // Assert
+        service.Should().BeOfType<ToDoCreateRequestService>();
+    }
+
+    [Fact]
+    public void AddApplication_ToDoUpdateRequestServiceKey_ResolvesToDoUpdateRequestService()
+    {
+        // Arrange
+        using var provider = BuildServiceProvider();
+
+        // Act
+        var service = provider.GetRequiredKeyedService<IRequestHandler<ToDoModel, int>>("ToDoUpdateRequestService");
+
+        // Assert
+        service.Should().BeOfType<ToDoUpdateRequestService>();
+    }
+
+    [Fact]
+    public void AddApplication_ToDoDeleteRequestServiceKey_ResolvesToDoDeleteRequestService()
+    {
+        // Arrange
+        using var provider = BuildServiceProvider();
+
+        // Act
+        var service = provider.GetRequiredKeyedService<IRequestHandler<int>>("ToDoDeleteRequestService");
+
+        // Assert
+        service.Should().BeOfType<ToDoDeleteRequestService>();
+    }
+
+    [Fact]
+    public void AddApplication_ToDoReadAllRequestServiceKey_ResolvesToDoReadAllRequestService()
+    {
+        // Arrange
+        using var provider = BuildServiceProvider();
+
+        // Act
+        var service = provider.GetRequiredKeyedService<IResponseHandler<IList<ToDoModel>>>("ToDoReadAllRequestService");
+
+        // Assert
+        service.Should().BeOfType<ToDoReadAllRequestService>();
+    }
+
+    [Fact]
+    public void AddApplication_ToDoReadDetailsRequestServiceKey_ResolvesToDoReadDetailsRequestService()
+    {
+        // Arrange
+        using var provider = BuildServiceProvider();
+
+        // Act
+        var service = provider.GetRequiredKeyedService<IRequestHandler<int, ToDoModel>>("ToDoReadDetailsRequestService");
+
+        // Assert
+        service.Should().BeOfType<ToDoReadDetailsRequestService>();
+    }
+
+    private sealed class StubRepository : ICrudRepository<ToDoModel>
+    {
+        public Task<int> CreateAsync(ToDoModel model, CancellationToken cancellationToken = default) => Task.FromResult(0);
+        public Task<int> UpdateAsync(ToDoModel model, CancellationToken cancellationToken = default) => Task.FromResult(0);
+        public Task DeleteAsync(int id, CancellationToken cancellationToken = default) => Task.CompletedTask;
+
+        public Task<IReadOnlyList<ToDoModel>> GetAllAsync(CancellationToken cancellationToken = default)
+            => Task.FromResult<IReadOnlyList<ToDoModel>>([]);
+
+        public Task<ToDoModel> GetByIdAsync(int id, CancellationToken cancellationToken = default)
+            => Task.FromResult(new ToDoModel { Name = string.Empty, Description = string.Empty, Status = string.Empty });
+    }
+}
