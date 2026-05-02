@@ -1,22 +1,39 @@
 using FluentAssertions;
+using Microsoft.EntityFrameworkCore;
 using NSubstitute;
-using ToDo.Application.Interfaces;
 using ToDo.Application.Services;
 using ToDo.Domain.Models;
+using ToDo.IntegrationsTest.Shared;
+using ToDo.Persistence.DatabaseContext;
+using ToDo.Persistence.Entities;
+using ToDo.Persistence.Repositories;
+using ToDo.Shared.Application.Exceptions;
 
 namespace ToDo.IntegrationsTest.Application;
 
 public class ToDoIntegrationTests : IAsyncLifetime
 {
-    public ValueTask InitializeAsync()
+    private DatabaseFixture _fixture = null!;
+    private AppDatabaseContext _appDatabaseContext = null!;
+    private ToDoRepository _repository = null!;
+
+    public async ValueTask InitializeAsync()
     {
-        return ValueTask.CompletedTask;
+        _fixture = new DatabaseFixture();
+        await _fixture.StartAsync();
+
+        var options = new DbContextOptionsBuilder<AppDatabaseContext>()
+            .UseSqlServer(_fixture.ConnectionString)
+            .Options;
+
+        _appDatabaseContext = new AppDatabaseContext(options);
+        _repository = new ToDoRepository(_appDatabaseContext);
     }
 
-    public ValueTask DisposeAsync()
+    public async ValueTask DisposeAsync()
     {
+        await _fixture.DisposeAsync();
         GC.SuppressFinalize(this);
-        return ValueTask.CompletedTask;
     }
 
     [Fact]
@@ -30,72 +47,100 @@ public class ToDoIntegrationTests : IAsyncLifetime
             Status = "New"
         };
 
-        var repository = Substitute.For<ICrudRepository<ToDoModel>>();
-        repository.CreateAsync(todo, Arg.Any<CancellationToken>()).Returns(1);
-
         var logger = Substitute.For<ILogger<ToDoCreateRequestService>>();
         logger.IsEnabled(LogLevel.Information).Returns(true);
 
-        var sut = new ToDoCreateRequestService(repository, logger);
+        var sut = new ToDoCreateRequestService(_repository, logger);
 
         // Act
         var actual = await sut.InvokeAsync(todo, TestContext.Current.CancellationToken);
+        var actualToDo = await _appDatabaseContext.ToDos
+            .FirstOrDefaultAsync(x => x.Name == todo.Name, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
-        await repository.Received(1).CreateAsync(todo, Arg.Any<CancellationToken>());
-        logger.ReceivedCalls().Should().ContainSingle(c => c.GetMethodInfo().Name == "Log");
+        actualToDo.Should().NotBeNull();
+        actualToDo.Name.Should().Be(todo.Name);
+        actualToDo.Description.Should().Be(todo.Description);
+        actualToDo.Status.Should().Be(todo.Status);
 
-        actual.Should().Be(1);
+        actual.Should().Be(actualToDo.Id);
+
+        logger.ReceivedCalls().Should().ContainSingle(c => c.GetMethodInfo().Name == "Log");
     }
 
     [Fact]
     public async Task UpdateInvokeAsync_WithValidModel_ShouldUpdateAndLog()
     {
         // Arrange
-        var todo = new ToDoModel
+        var todo = new ToDoEntity
         {
-            Id = 1,
             Name = "Test 1",
             Description = "Test description 1",
-            Status = "Ongoing"
+            Status = "New"
         };
 
-        var repository = Substitute.For<ICrudRepository<ToDoModel>>();
-        repository.UpdateAsync(todo, Arg.Any<CancellationToken>()).Returns(todo.Id);
+        _appDatabaseContext.ToDos.Add(todo);
+        await _appDatabaseContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+        var id = todo.Id;
+
+        var todoUpdate = new ToDoModel
+        {
+            Id = id,
+            Name = "Test 2",
+            Description = "Test description 2",
+            Status = "Ongoing"
+        };
 
         var logger = Substitute.For<ILogger<ToDoUpdateRequestService>>();
         logger.IsEnabled(LogLevel.Information).Returns(true);
 
-        var sut = new ToDoUpdateRequestService(repository, logger);
+        var sut = new ToDoUpdateRequestService(_repository, logger);
 
         // Act
-        var actual = await sut.InvokeAsync(todo, TestContext.Current.CancellationToken);
+        var actual = await sut.InvokeAsync(todoUpdate, TestContext.Current.CancellationToken);
+        var actualToDo = await _appDatabaseContext.ToDos
+            .FirstOrDefaultAsync(x => x.Name == todo.Name, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
-        await repository.Received(1).UpdateAsync(todo, Arg.Any<CancellationToken>());
-        logger.ReceivedCalls().Should().ContainSingle(c => c.GetMethodInfo().Name == "Log");
+        actualToDo.Should().NotBeNull();
+        actualToDo.Name.Should().Be(todo.Name);
+        actualToDo.Description.Should().Be(todo.Description);
+        actualToDo.Status.Should().Be(todo.Status);
 
-        actual.Should().Be(1);
+        actual.Should().Be(actualToDo.Id);
+
+        logger.ReceivedCalls().Should().ContainSingle(c => c.GetMethodInfo().Name == "Log");
     }
 
     [Fact]
     public async Task DeleteInvokeAsync_WithValidId_ShouldDeleteAndLog()
     {
         // Arrange
-        const int id = 1;
+        var todo = new ToDoEntity
+        {
+            Name = "Test 1",
+            Description = "Test description 1",
+            Status = "New"
+        };
 
-        var repository = Substitute.For<ICrudRepository<ToDoModel>>();
+        _appDatabaseContext.ToDos.Add(todo);
+        await _appDatabaseContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+        var id = todo.Id;
 
         var logger = Substitute.For<ILogger<ToDoDeleteRequestService>>();
         logger.IsEnabled(LogLevel.Information).Returns(true);
 
-        var sut = new ToDoDeleteRequestService(repository, logger);
+        var sut = new ToDoDeleteRequestService(_repository, logger);
 
         // Act
         await sut.InvokeAsync(id, TestContext.Current.CancellationToken);
 
+        var actual = await _appDatabaseContext.ToDos
+            .FirstOrDefaultAsync(x => x.Id == id, cancellationToken: TestContext.Current.CancellationToken);
+
         // Assert
-        await repository.Received(1).DeleteAsync(id, Arg.Any<CancellationToken>());
+        actual.Should().BeNull();
+
         logger.ReceivedCalls().Should().ContainSingle(c => c.GetMethodInfo().Name == "Log");
     }
 
@@ -103,64 +148,77 @@ public class ToDoIntegrationTests : IAsyncLifetime
     public async Task ReadAllInvokeAsync_ShouldReadAndLog()
     {
         // Arrange
-        var todos = Enumerable.Range(0, 10).Select(i => new ToDoModel
+        var todos = Enumerable.Range(0, 10).Select(i => new ToDoEntity
         {
-            Id = i,
-            Name = "Test 1",
-            Description = "Test description 1",
-            Status = "Ongoing"
+            Name = $"Test {i}",
+            Description = $"Test description {i}",
+            Status = "New"
         }).ToList();
 
-        var repository = Substitute.For<ICrudRepository<ToDoModel>>();
-        repository.GetAllAsync(Arg.Any<CancellationToken>())
-            .Returns(todos);
+        await _appDatabaseContext.AddRangeAsync(todos, TestContext.Current.CancellationToken);
+        await _appDatabaseContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var logger = Substitute.For<ILogger<ToDoReadAllRequestService>>();
         logger.IsEnabled(LogLevel.Information).Returns(true);
 
-        var sut = new ToDoReadAllRequestService(repository, logger);
+        var sut = new ToDoReadAllRequestService(_repository, logger);
 
         // Act
         var actual = await sut.InvokeAsync(TestContext.Current.CancellationToken);
 
         // Assert
-        await repository.Received(1).GetAllAsync(Arg.Any<CancellationToken>());
-        logger.ReceivedCalls().Should().ContainSingle(c => c.GetMethodInfo().Name == "Log");
+        actual.Count.Should().Be(10);
 
-        actual.Should().HaveCount(10);
+        logger.ReceivedCalls().Should().ContainSingle(c => c.GetMethodInfo().Name == "Log");
     }
 
     [Fact]
     public async Task ReadDetailsInvokeAsync_WithValidId_ShouldReadAndLog()
     {
         // Arrange
-        const int id = 1;
+        var todo = new ToDoEntity
+        {
+            Name = "Test 1",
+            Description = "Test description 1",
+            Status = "New"
+        };
 
-        var repository = Substitute.For<ICrudRepository<ToDoModel>>();
-        repository.GetByIdAsync(id, Arg.Any<CancellationToken>())
-            .Returns(new ToDoModel
-            {
-                Id = id,
-                Name = "Test 1",
-                Description = "Test description 1",
-                Status = "Ongoing"
-            });
+        _appDatabaseContext.ToDos.Add(todo);
+        await _appDatabaseContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var logger = Substitute.For<ILogger<ToDoReadDetailsRequestService>>();
         logger.IsEnabled(LogLevel.Information).Returns(true);
 
-        var sut = new ToDoReadDetailsRequestService(repository, logger);
+        var sut = new ToDoReadDetailsRequestService(_repository, logger);
 
         // Act
-        var actual = await sut.InvokeAsync(id, TestContext.Current.CancellationToken);
+        var actual = await sut.InvokeAsync(todo.Id, TestContext.Current.CancellationToken);
 
         // Assert
-        await repository.Received(1).GetByIdAsync(id, Arg.Any<CancellationToken>());
-        logger.ReceivedCalls().Should().ContainSingle(c => c.GetMethodInfo().Name == "Log");
+        actual.Should().NotBeNull();
+        actual.Id.Should().Be(todo.Id);
+        actual.Name.Should().Be(todo.Name);
+        actual.Description.Should().Be(todo.Description);
+        actual.Status.Should().Be(todo.Status);
 
-        actual.Id.Should().Be(id);
-        actual.Name.Should().Be("Test 1");
-        actual.Description.Should().Be("Test description 1");
-        actual.Status.Should().Be("Ongoing");
+        logger.ReceivedCalls().Should().ContainSingle(c => c.GetMethodInfo().Name == "Log");
+    }
+
+    [Fact]
+    public async Task ReadDetailsInvokeAsync_WithInValidId_ShouldThrowExceptionAndLog()
+    {
+        // Arrange
+        var logger = Substitute.For<ILogger<ToDoReadDetailsRequestService>>();
+        logger.IsEnabled(LogLevel.Information).Returns(true);
+
+        var sut = new ToDoReadDetailsRequestService(_repository, logger);
+
+        // Act
+        var actualEx = async () => await sut.InvokeAsync(9999, TestContext.Current.CancellationToken);
+
+        // Assert
+        await actualEx.Should().ThrowAsync<NotFoundException>();
+
+        logger.ReceivedCalls().Should().ContainSingle(c => c.GetMethodInfo().Name == "Log");
     }
 }
