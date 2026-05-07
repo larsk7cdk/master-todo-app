@@ -152,25 +152,4 @@ public class ToDoE2ETests(CustomWebApplicationFactory factory) : IClassFixture<C
         deleteResponse.Should().NotBeNull();
         deleteResponse.StatusCode.Should().Be(HttpStatusCode.OK);
     }
-
-    // [Fact]
-    // public async Task CreateToDos_Should_ReturnListOfToDos()
-    // {
-    //     for (int i = 0; i < 10; i++)
-    //     {
-    //         var createRequest = new ToDoCreateRequest
-    //         {
-    //             Name = $"ToDo {i}",
-    //             Description = $"Description {i}",
-    //             Status = "New"
-    //         };
-    //         await _httpClient.PostAsJsonAsync("/todo", createRequest, cancellationToken: TestContext.Current.CancellationToken);
-    //     }
-    //
-    //     var result = await _httpClient.GetAsync("/todo", cancellationToken: TestContext.Current.CancellationToken);
-    //     var resultList = await result.Content.ReadFromJsonAsync<List<ToDoResponse>>(TestContext.Current.CancellationToken);
-    //
-    //     resultList.Should().NotBeNull();
-    //     resultList.Count.Should().Be(10);
-    // }
 }
