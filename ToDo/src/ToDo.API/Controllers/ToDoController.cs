@@ -13,7 +13,6 @@ public class ToDoController : AppControllerBase
     [HttpPost]
     [ProducesResponseType(201)]
     public async Task<IActionResult> CreateAsync(
-        [FromServices] IValidator<ToDoCreateRequest> validator,
         [FromBody] ToDoCreateRequest request,
         [FromKeyedServices(KeyedServices.ToDoCreateRequestServiceKey)]
         IRequestHandler<ToDoModel, int> requestService,
@@ -29,7 +28,6 @@ public class ToDoController : AppControllerBase
     [HttpPut]
     [ProducesResponseType(200)]
     public async Task<IActionResult> UpdateAsync(
-        [FromServices] IValidator<ToDoUpdateRequest> validator,
         [FromBody] ToDoUpdateRequest request,
         [FromKeyedServices(KeyedServices.ToDoUpdateRequestServiceKey)]
         IRequestHandler<ToDoModel, int> requestService,
@@ -50,7 +48,7 @@ public class ToDoController : AppControllerBase
         IRequestHandler<int> requestService,
         CancellationToken cancellationToken)
     {
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(id);
+        if (id <= 0) return BadRequest();
 
         await requestService.InvokeAsync(id, cancellationToken);
 
@@ -60,13 +58,12 @@ public class ToDoController : AppControllerBase
     [HttpGet("{id:int}")]
     [ProducesResponseType(typeof(ToDoResponse), 200)]
     public async Task<IActionResult> GetDetailsAsync(
-        [FromServices] IValidator<ToDoReadDetailsRequest> validator,
         [FromRoute] int id,
         [FromKeyedServices(KeyedServices.ToDoReadDetailsRequestServiceKey)]
         IRequestHandler<int, ToDoModel> requestService,
         CancellationToken cancellationToken)
     {
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(id);
+        if (id <= 0) return BadRequest();
 
         var result = await requestService.InvokeAsync(id, cancellationToken);
 

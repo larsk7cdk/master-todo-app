@@ -2,7 +2,7 @@
 
 public class ToDoResponse
 {
-    public int? Id { get; init; }
+    public int Id { get; init; }
 
     public required string Name { get; init; }
 
