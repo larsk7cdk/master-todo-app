@@ -27,7 +27,7 @@ public class ToDoE2ETests(CustomWebApplicationFactory factory) : IClassFixture<C
     }
 
     [Fact]
-    public async Task CreateToDo_Should_ReturnSuccessStatusCode()
+    public async Task CreateToDo_Should_ReturnStatusCodeSuccess()
     {
         var createRequest = new ToDoCreateRequest
         {

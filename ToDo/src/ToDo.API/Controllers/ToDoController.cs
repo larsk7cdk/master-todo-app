@@ -19,13 +19,11 @@ public class ToDoController : AppControllerBase
         IRequestHandler<ToDoModel, int> requestService,
         CancellationToken cancellationToken)
     {
-        await validator.ValidateAndThrowAsync(request, cancellationToken);
-
         var model = request.ToModel();
 
         var result = await requestService.InvokeAsync(model, cancellationToken);
 
-        return Created($"/todo/id", new { id = result });
+        return Created("/todo/id", new { id = result });
     }
 
     [HttpPut]
@@ -37,8 +35,6 @@ public class ToDoController : AppControllerBase
         IRequestHandler<ToDoModel, int> requestService,
         CancellationToken cancellationToken)
     {
-        await validator.ValidateAndThrowAsync(request, cancellationToken);
-
         var model = request.ToModel();
 
         var result = await requestService.InvokeAsync(model, cancellationToken);
@@ -49,12 +45,13 @@ public class ToDoController : AppControllerBase
     [HttpDelete("{id:int}")]
     [ProducesResponseType(200)]
     public async Task<IActionResult> DeleteAsync(
-        [FromServices] IValidator<ToDoDeleteRequest> validator,
         [FromRoute] int id,
         [FromKeyedServices(KeyedServices.ToDoDeleteRequestServiceKey)]
         IRequestHandler<int> requestService,
         CancellationToken cancellationToken)
     {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(id);
+
         await requestService.InvokeAsync(id, cancellationToken);
 
         return Ok();
@@ -69,6 +66,8 @@ public class ToDoController : AppControllerBase
         IRequestHandler<int, ToDoModel> requestService,
         CancellationToken cancellationToken)
     {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(id);
+
         var result = await requestService.InvokeAsync(id, cancellationToken);
 
         var response = result.ToResponse();
@@ -80,11 +79,11 @@ public class ToDoController : AppControllerBase
     [ProducesResponseType(typeof(IReadOnlyList<ToDoResponse>), 200)]
     public async Task<IActionResult> GetAllAsync(
         [FromKeyedServices(KeyedServices.ToDoReadAllRequestServiceKey)]
-        IQueryHandler<IList<ToDoModel>> requestService,
+        IQueryHandler<IList<ToDoResponse>> requestService,
         CancellationToken cancellationToken)
     {
-        var result = await requestService.InvokeAsync(cancellationToken);
+        var response = await requestService.InvokeAsync(cancellationToken);
 
-        return Ok(result);
+        return Ok(response);
     }
 }

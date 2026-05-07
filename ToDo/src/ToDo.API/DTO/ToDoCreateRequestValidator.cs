@@ -2,13 +2,10 @@ using FluentValidation;
 
 namespace ToDo.API.DTO;
 
-public class ToDoUpdateRequestValidator : AbstractValidator<ToDoUpdateRequest>
+public class ToDoCreateRequestValidator : AbstractValidator<ToDoCreateRequest>
 {
-    public ToDoUpdateRequestValidator()
+    public ToDoCreateRequestValidator()
     {
-        RuleFor(x => x.Id)
-            .NotEmpty().WithMessage("Id skal være udfyldt.");
-
         RuleFor(x => x.Name)
             .NotEmpty().WithMessage("Navn skal være udfyldt.");
 

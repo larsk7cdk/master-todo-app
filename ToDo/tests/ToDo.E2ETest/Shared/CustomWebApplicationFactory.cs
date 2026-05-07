@@ -36,7 +36,7 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IAsyn
     public async ValueTask InitializeAsync()
     {
         await _sqlContainer.StartAsync();
-       await ApplyMigrationsAsync<AppDatabaseContext>();
+        await ApplyMigrationsAsync<AppDatabaseContext>();
     }
 
     public new async ValueTask DisposeAsync()

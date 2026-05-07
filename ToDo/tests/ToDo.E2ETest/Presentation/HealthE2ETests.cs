@@ -23,7 +23,6 @@ public class HealthE2ETests(WebApplicationFactory<Program> factory) : IClassFixt
     public void Dispose()
     {
         _httpClient.Dispose();
-        factory.Dispose();
         GC.SuppressFinalize(this);
     }
 }
