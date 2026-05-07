@@ -1,8 +1,9 @@
 ﻿using System.Globalization;
+using System.Reflection;
 using System.Text.Json.Serialization;
 using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
-using Microsoft.Extensions.DependencyInjection;
 using ToDo.API.Controllers;
 using ToDo.API.Middlewares;
 
@@ -42,6 +43,9 @@ public static class DependencyInjection
                 options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
                 options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
             });
+
+        services.AddFluentValidationAutoValidation(cfg => { cfg.DisableDataAnnotationsValidation = true; });
+        services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 
         return services;
     }
