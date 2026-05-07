@@ -76,10 +76,12 @@ public class ToDoController : AppControllerBase
     [ProducesResponseType(typeof(IReadOnlyList<ToDoResponse>), 200)]
     public async Task<IActionResult> GetAllAsync(
         [FromKeyedServices(KeyedServices.ToDoReadAllRequestServiceKey)]
-        IQueryHandler<IList<ToDoResponse>> requestService,
+        IQueryHandler<IList<ToDoModel>> requestService,
         CancellationToken cancellationToken)
     {
-        var response = await requestService.InvokeAsync(cancellationToken);
+        var result = await requestService.InvokeAsync(cancellationToken);
+
+        var response = result.Select(s => s.ToResponse()).ToList();
 
         return Ok(response);
     }

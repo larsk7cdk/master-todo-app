@@ -26,10 +26,6 @@ public class ToDoListE2ETests(CustomWebApplicationFactory factory) : IClassFixtu
     [Fact]
     public async Task CreateToDos_Should_ReturnListOfToDos()
     {
-        var beforeResult = await _httpClient.GetAsync("/todo", cancellationToken: TestContext.Current.CancellationToken);
-        var beforeList = await beforeResult.Content.ReadFromJsonAsync<List<ToDoResponse>>(TestContext.Current.CancellationToken);
-        var beforeCount = beforeList?.Count ?? 0;
-
         for (int i = 0; i < 10; i++)
         {
             var createRequest = new ToDoCreateRequest
@@ -45,6 +41,6 @@ public class ToDoListE2ETests(CustomWebApplicationFactory factory) : IClassFixtu
         var resultList = await result.Content.ReadFromJsonAsync<List<ToDoResponse>>(TestContext.Current.CancellationToken);
 
         resultList.Should().NotBeNull();
-        resultList.Count.Should().Be(beforeCount + 10);
+        resultList.Count.Should().Be(10);
     }
 }

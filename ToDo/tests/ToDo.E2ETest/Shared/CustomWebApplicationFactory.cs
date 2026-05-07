@@ -43,6 +43,7 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IAsyn
     {
         await _sqlContainer.StopAsync();
         GC.SuppressFinalize(this);
+        await base.DisposeAsync();
     }
 
     private async Task ApplyMigrationsAsync<TDbContext>() where TDbContext : DbContext

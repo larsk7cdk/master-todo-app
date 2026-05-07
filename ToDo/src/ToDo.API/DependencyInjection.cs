@@ -33,8 +33,7 @@ public static class DependencyInjection
 
         services.AddHttpContextAccessor();
 
-        services
-            .AddOpenApi().AddEndpointsApiExplorer();
+        services.AddOpenApi().AddEndpointsApiExplorer();
 
         // Add Controllers with JSON support
         services.AddControllers(options => { options.Conventions.Add(new RouteTokenTransformerConvention(new LowerCaseParameterTransformer())); })
